@@ -7,12 +7,81 @@ import {
   Mail,
   ExternalLink,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Send,
   Smartphone,
   Code,
   GraduationCap,
 } from "lucide-react";
+
+// --- COMPONENTE: Carrossel Automático para Projetos ---
+const ProjectCarousel = ({ images, onImageClick }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Passa as imagens automaticamente a cada 4 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className="relative w-full h-full group/carousel overflow-hidden bg-zinc-950/80 flex items-center justify-center">
+      <img
+        src={images[currentIndex]}
+        alt={`Tela ${currentIndex + 1}`}
+        onClick={() => onImageClick({ images, index: currentIndex })}
+        className="w-full h-full object-contain p-2 transition-opacity duration-500 cursor-pointer hover:scale-105 transition-transform"
+        title="Clique para expandir"
+      />
+
+      {/* Setas de navegação (aparecem no hover) */}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          prevSlide();
+        }}
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-zinc-900/80 hover:bg-orange-500 text-white p-1.5 rounded-full opacity-0 group-hover/carousel:opacity-100 transition-all border border-zinc-700 z-10"
+      >
+        <ChevronLeft size={20} />
+      </button>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          nextSlide();
+        }}
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-zinc-900/80 hover:bg-orange-500 text-white p-1.5 rounded-full opacity-0 group-hover/carousel:opacity-100 transition-all border border-zinc-700 z-10"
+      >
+        <ChevronRight size={20} />
+      </button>
+
+      {/* Indicadores (Bolinhas) */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10 pointer-events-none">
+        {images.map((_, idx) => (
+          <div
+            key={idx}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              idx === currentIndex ? "bg-orange-500 w-4" : "bg-zinc-500"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,14 +93,15 @@ function App() {
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Estado Inteligente para o Modal de Imagem (sabe a lista de imagens e a posição)
+  const [modalData, setModalData] = useState(null);
+
   const [formStatus, setFormStatus] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // URL da API (Render ou Localhost)
         const baseUrl = "https://portfolio-eduardo.onrender.com";
-        // const baseUrl = "http://localhost:3000";
 
         const [resSobre, resFormacao, resSkills, resProjetos] =
           await Promise.all([
@@ -46,10 +116,40 @@ function App() {
         const dadosSkills = await resSkills.json();
         const dadosProjetos = await resProjetos.json();
 
+        // 1. Atualizamos o BikeTracker para suportar múltiplas telas
+        let projetosAtualizados = dadosProjetos.map((proj) => {
+          if (
+            proj.titulo.toLowerCase().includes("bike") ||
+            proj.titulo.toLowerCase().includes("tracker")
+          ) {
+            return {
+              ...proj,
+              imagensApp: [
+                "/biketracker-1.jpg",
+                "/biketracker-2.jpg",
+                "/biketracker-3.jpg",
+                "/biketracker-4.jpg"
+              ],
+            };
+          }
+          return proj;
+        });
+
+        // 2. Adicionamos o Encurtador de URL no topo da lista
+        projetosAtualizados.unshift({
+          id: "encurtador-url",
+          titulo: "Encurtador de URL Serverless",
+          descricao:
+            "Aplicação Full Stack moderna para encurtamento de links. Conta com redirecionamento ultra-rápido, dashboard de cliques em tempo real, UI vibrante em Dark/Neon e arquitetura Serverless com Node.js e Vercel.",
+          techs: ["React", "Node.js", "MongoDB", "Tailwind", "Vercel"],
+          imagem: "/encurtador.jpg",
+          link: "https://encurtador-url-vert.vercel.app/",
+        });
+
         setDados(dadosSobre);
         setFormacao(dadosFormacao);
         setSkills(dadosSkills);
-        setProjetos(dadosProjetos);
+        setProjetos(projetosAtualizados);
       } catch (error) {
         console.error("Erro ao conectar com a API:", error);
       } finally {
@@ -106,7 +206,64 @@ function App() {
   ];
 
   return (
-    <div className="bg-zinc-950 text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
+    <div className="bg-zinc-950 text-zinc-100 font-sans selection:bg-orange-500 selection:text-white relative">
+      
+      {/* --- MODAL DE IMAGEM EXPANDIDA COM NAVEGAÇÃO --- */}
+      {modalData && (
+        <div 
+          className="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 animate-fadeIn"
+          onClick={() => setModalData(null)}
+        >
+          {/* Botão Fechar */}
+          <button 
+            className="absolute top-6 right-6 p-2 bg-zinc-900/80 hover:bg-orange-500 text-white rounded-full transition-colors border border-zinc-700 hover:border-orange-500 z-50 shadow-lg"
+            onClick={() => setModalData(null)}
+          >
+            <X size={28} />
+          </button>
+
+          {/* Seta Esquerda (Aparece apenas se houver mais de 1 imagem) */}
+          {modalData.images.length > 1 && (
+            <button
+              className="absolute left-4 md:left-10 p-3 bg-zinc-900/80 hover:bg-orange-500 text-white rounded-full transition-colors border border-zinc-700 hover:border-orange-500 z-50 shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalData(prev => ({
+                  ...prev,
+                  index: prev.index === 0 ? prev.images.length - 1 : prev.index - 1
+                }));
+              }}
+            >
+              <ChevronLeft size={32} />
+            </button>
+          )}
+
+          {/* Imagem em Destaque */}
+          <img 
+            src={modalData.images[modalData.index]} 
+            alt="Imagem Expandida do Projeto" 
+            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-zinc-800"
+            onClick={(e) => e.stopPropagation()} 
+          />
+
+          {/* Seta Direita (Aparece apenas se houver mais de 1 imagem) */}
+          {modalData.images.length > 1 && (
+            <button
+              className="absolute right-4 md:right-10 p-3 bg-zinc-900/80 hover:bg-orange-500 text-white rounded-full transition-colors border border-zinc-700 hover:border-orange-500 z-50 shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalData(prev => ({
+                  ...prev,
+                  index: prev.index === prev.images.length - 1 ? 0 : prev.index + 1
+                }));
+              }}
+            >
+              <ChevronRight size={32} />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800 shadow-lg shadow-orange-500/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,7 +395,6 @@ function App() {
           <h2 className="text-3xl md:text-4xl font-bold mb-16 border-l-4 border-orange-500 pl-4">
             Formação Acadêmica
           </h2>
-
           <div className="grid md:grid-cols-2 gap-8">
             {formacao.map((item) => (
               <div
@@ -282,7 +438,6 @@ function App() {
           <h2 className="text-3xl md:text-4xl font-bold mb-16 border-l-4 border-orange-500 pl-4">
             Arsenal Tecnológico
           </h2>
-
           <div className="grid md:grid-cols-2 gap-12">
             <div>
               <h3 className="text-xl font-semibold mb-6 text-zinc-300 flex items-center gap-2">
@@ -306,7 +461,6 @@ function App() {
                 ))}
               </div>
             </div>
-
             <div>
               <h3 className="text-xl font-semibold mb-6 text-zinc-300 flex items-center gap-2">
                 <CheckCircle2 className="text-orange-500" /> Soft Skills
@@ -333,20 +487,30 @@ function App() {
           <h2 className="text-3xl md:text-4xl font-bold mb-12 border-l-4 border-orange-500 pl-4">
             Projetos Recentes
           </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projetos.map((projeto) => (
               <div
                 key={projeto.id}
                 className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-orange-500/50 transition-all group flex flex-col shadow-lg hover:shadow-orange-500/10"
               >
-                <div className="h-48 bg-zinc-800 relative overflow-hidden">
-                  {projeto.imagem ? (
-                    <img
-                      src={projeto.imagem}
-                      alt={projeto.titulo}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                {/* ÁREA DA IMAGEM / CARROSSEL */}
+                <div className="h-60 bg-zinc-800 relative overflow-hidden group/img flex items-center justify-center">
+                  {projeto.imagensApp ? (
+                    <ProjectCarousel 
+                      images={projeto.imagensApp} 
+                      onImageClick={setModalData} 
                     />
+                  ) : projeto.imagem ? (
+                    <>
+                      <img
+                        src={projeto.imagem}
+                        alt={projeto.titulo}
+                        onClick={() => setModalData({ images: [projeto.imagem], index: 0 })}
+                        title="Clique para expandir"
+                        className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500 cursor-pointer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+                    </>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Code
@@ -355,9 +519,9 @@ function App() {
                       />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-80"></div>
                 </div>
 
+                {/* INFO DO PROJETO */}
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="text-xl font-bold mb-2 text-white group-hover:text-orange-400 transition-colors">
                     {projeto.titulo}
@@ -367,23 +531,24 @@ function App() {
                       {projeto.techs.map((tech) => (
                         <span
                           key={tech}
-                          className="text-xs px-2 py-1 bg-zinc-800 text-orange-400 rounded border border-zinc-700"
+                          className="text-xs px-2 py-1 bg-zinc-800 text-orange-400 rounded border border-zinc-700 font-medium"
                         >
                           {tech}
                         </span>
                       ))}
                     </div>
                   )}
-                  <p className="text-zinc-400 text-sm mb-6 flex-1 line-clamp-3">
+                  {/* Descrição Justificada */}
+                  <p className="text-zinc-400 text-sm mb-6 flex-1 text-justify">
                     {projeto.descricao}
                   </p>
                   <a
                     href={projeto.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white bg-orange-600 hover:bg-orange-700 py-2 px-4 rounded-lg font-medium text-sm transition-colors w-fit mt-auto"
+                    className="inline-flex items-center justify-center gap-2 text-white bg-orange-600 hover:bg-orange-700 py-2.5 px-4 rounded-lg font-bold text-sm transition-colors w-full mt-auto"
                   >
-                    Acessar Repositório <ExternalLink size={16} />
+                    Acessar Projeto <ExternalLink size={16} />
                   </a>
                 </div>
               </div>
@@ -403,20 +568,14 @@ function App() {
               <div key={index} className="relative pl-8 md:pl-0">
                 <div className="hidden md:block absolute left-[50%] top-0 bottom-0 w-px bg-zinc-800 -translate-x-1/2"></div>
                 <div
-                  className={`md:flex items-center justify-between ${
-                    index % 2 === 0 ? "flex-row-reverse" : ""
-                  } gap-12`}
+                  className={`md:flex items-center justify-between ${index % 2 === 0 ? "flex-row-reverse" : ""} gap-12`}
                 >
                   <div className="hidden md:block w-1/2 relative">
                     <div
-                      className={`absolute top-6 w-4 h-4 bg-orange-500 rounded-full border-4 border-zinc-950 shadow-[0_0_15px_rgba(249,115,22,0.8)] z-10 ${
-                        index % 2 === 0 ? "-left-[26px]" : "-right-[26px]"
-                      }`}
+                      className={`absolute top-6 w-4 h-4 bg-orange-500 rounded-full border-4 border-zinc-950 shadow-[0_0_15px_rgba(249,115,22,0.8)] z-10 ${index % 2 === 0 ? "-left-[26px]" : "-right-[26px]"}`}
                     ></div>
                     <div
-                      className={`text-orange-500 font-mono font-bold ${
-                        index % 2 === 0 ? "text-left" : "text-right"
-                      }`}
+                      className={`text-orange-500 font-mono font-bold ${index % 2 === 0 ? "text-left" : "text-right"}`}
                     >
                       {exp.ano}
                     </div>
@@ -461,7 +620,6 @@ function App() {
                 Conecte-se comigo
               </h3>
               <div className="flex gap-4">
-                {/* --- BOTÃO WHATSAPP NOVO (Substituindo o Flutuante) --- */}
                 {dados.telefone && (
                   <a
                     href={`https://wa.me/${dados.telefone}?text=Olá Eduardo, vi seu portfólio e gostaria de conversar!`}
@@ -479,7 +637,6 @@ function App() {
                     </svg>
                   </a>
                 )}
-
                 <a
                   href="https://github.com/eduardotorres-17"
                   target="_blank"
