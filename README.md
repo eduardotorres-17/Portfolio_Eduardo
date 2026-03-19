@@ -29,9 +29,9 @@ O projeto foi dividido e hospedado utilizando os melhores serviços de nuvem mod
 
 ### Front-end
 - **Tecnologia:** React.js
-- **Estilização:** [Insira aqui, ex: Tailwind CSS / Styled Components]
+- **Estilização:** Tailwind CSS
 - **Hospedagem:** **Vercel** - Escolhida pela integração nativa com o ecossistema React, garantindo *builds* ultrarrápidos e entrega via CDN global.
 
 ### Back-end (API)
-- **Tecnologia:** [Insira aqui a tech da API, ex: Node.js com Express]
+- **Tecnologia:** Node.js e Express.
 - **Hospedagem:** **Render** - Plataforma PaaS robusta que permite o deploy direto do repositório, mantendo o serviço de back-end estável e escalável.
