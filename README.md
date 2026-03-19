@@ -9,9 +9,9 @@
 ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 ## 🌐 Links do Projeto
-- **Front-end (Aplicação Live):** [Insira o link da Vercel aqui]
-- **Back-end (API Base URL):** [Insira o link do Render aqui]
-
+- **Front-end (Aplicação Live):** https://portfolio-eduardo-torres.vercel.app/
+- **Back-end (API Base URL):** https://portfolio-eduardo.onrender.com/
+  
 ## 💡 A Arquitetura: Por que uma API separada?
 
 Em vez de criar um portfólio estático com os dados fixos (hardcoded) no código front-end, optei por uma abordagem de **Arquitetura Desacoplada** (Client-Server). 
