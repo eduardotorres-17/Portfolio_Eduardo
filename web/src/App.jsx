@@ -93,15 +93,15 @@ function App() {
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estado Inteligente para o Modal de Imagem (sabe a lista de imagens e a posição)
+  // Estado Inteligente para o Modal de Imagem
   const [modalData, setModalData] = useState(null);
-
   const [formStatus, setFormStatus] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const baseUrl = "https://portfolio-eduardo.onrender.com";
+        const baseUrl = "https://portfolio-eduardo.onrender.com"; 
+        // const baseUrl = "http://localhost:3000";
 
         const [resSobre, resFormacao, resSkills, resProjetos] =
           await Promise.all([
@@ -116,40 +116,11 @@ function App() {
         const dadosSkills = await resSkills.json();
         const dadosProjetos = await resProjetos.json();
 
-        // 1. Atualizamos o BikeTracker para suportar múltiplas telas
-        let projetosAtualizados = dadosProjetos.map((proj) => {
-          if (
-            proj.titulo.toLowerCase().includes("bike") ||
-            proj.titulo.toLowerCase().includes("tracker")
-          ) {
-            return {
-              ...proj,
-              imagensApp: [
-                "/biketracker-1.jpg",
-                "/biketracker-2.jpg",
-                "/biketracker-3.jpg",
-                "/biketracker-4.jpg"
-              ],
-            };
-          }
-          return proj;
-        });
-
-        // 2. Adicionamos o Encurtador de URL no topo da lista
-        projetosAtualizados.unshift({
-          id: "encurtador-url",
-          titulo: "Encurtador de URL Serverless",
-          descricao:
-            "Aplicação Full Stack moderna para encurtamento de links. Conta com redirecionamento ultra-rápido, dashboard de cliques em tempo real, UI vibrante em Dark/Neon e arquitetura Serverless com Node.js e Vercel.",
-          techs: ["React", "Node.js", "MongoDB", "Tailwind", "Vercel"],
-          imagem: "/encurtador.jpg",
-          link: "https://encurtador-url-vert.vercel.app/",
-        });
-
+        // O Front-end agora apenas recebe e seta os dados. Limpo e direto!
         setDados(dadosSobre);
         setFormacao(dadosFormacao);
         setSkills(dadosSkills);
-        setProjetos(projetosAtualizados);
+        setProjetos(dadosProjetos);
       } catch (error) {
         console.error("Erro ao conectar com a API:", error);
       } finally {
@@ -208,13 +179,11 @@ function App() {
   return (
     <div className="bg-zinc-950 text-zinc-100 font-sans selection:bg-orange-500 selection:text-white relative">
       
-      {/* --- MODAL DE IMAGEM EXPANDIDA COM NAVEGAÇÃO --- */}
       {modalData && (
         <div 
           className="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 animate-fadeIn"
           onClick={() => setModalData(null)}
         >
-          {/* Botão Fechar */}
           <button 
             className="absolute top-6 right-6 p-2 bg-zinc-900/80 hover:bg-orange-500 text-white rounded-full transition-colors border border-zinc-700 hover:border-orange-500 z-50 shadow-lg"
             onClick={() => setModalData(null)}
@@ -222,7 +191,6 @@ function App() {
             <X size={28} />
           </button>
 
-          {/* Seta Esquerda (Aparece apenas se houver mais de 1 imagem) */}
           {modalData.images.length > 1 && (
             <button
               className="absolute left-4 md:left-10 p-3 bg-zinc-900/80 hover:bg-orange-500 text-white rounded-full transition-colors border border-zinc-700 hover:border-orange-500 z-50 shadow-lg"
@@ -238,7 +206,6 @@ function App() {
             </button>
           )}
 
-          {/* Imagem em Destaque */}
           <img 
             src={modalData.images[modalData.index]} 
             alt="Imagem Expandida do Projeto" 
@@ -246,7 +213,6 @@ function App() {
             onClick={(e) => e.stopPropagation()} 
           />
 
-          {/* Seta Direita (Aparece apenas se houver mais de 1 imagem) */}
           {modalData.images.length > 1 && (
             <button
               className="absolute right-4 md:right-10 p-3 bg-zinc-900/80 hover:bg-orange-500 text-white rounded-full transition-colors border border-zinc-700 hover:border-orange-500 z-50 shadow-lg"
@@ -264,7 +230,6 @@ function App() {
         </div>
       )}
 
-      {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800 shadow-lg shadow-orange-500/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -315,7 +280,6 @@ function App() {
         )}
       </nav>
 
-      {/* --- HERO SECTION --- */}
       <section
         id="sobre"
         className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden"
@@ -386,7 +350,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- SEÇÃO: FORMAÇÃO ACADÊMICA --- */}
       <section
         id="formação"
         className="py-20 bg-zinc-900/30 border-t border-zinc-800"
@@ -429,7 +392,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- HABILIDADES & TECH --- */}
       <section
         id="habilidades"
         className="py-20 bg-zinc-950 border-t border-zinc-900/50"

@@ -37,7 +37,6 @@ const dadosPessoais = {
   ],
 };
 
-// NOVA SEÇÃO: Formação Acadêmica
 const formacao = [
   {
     id: 1,
@@ -49,7 +48,7 @@ const formacao = [
   },
   {
     id: 2,
-    instituicao: "IFSul - Câmpus Pelotas", // Edite aqui se for outra escola
+    instituicao: "IFSul - Câmpus Pelotas",
     curso: "Técnico em Eletrotécnica",
     nivel: "Ensino Técnico",
     descricao:
@@ -80,8 +79,24 @@ const skills = {
       icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
     },
     {
+      name: "Express",
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg",
+    },
+    {
       name: "Java",
       icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
+    },
+    {
+      name: "Spring",
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg",
+    },
+    {
+      name: "Laravel",
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg",
+    },
+    {
+      name: "Docker",
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg",
     },
     {
       name: "Tailwind CSS",
@@ -99,10 +114,32 @@ const skills = {
     "Resolução de Problemas",
     "Adaptabilidade",
     "Gestão de Tempo",
+    "Autonomia",
+    "Criatividade",
+    "Aprendizado Continuo",
+    "Responsabilidade Pessoal",
   ],
 };
 
 const projetos = [
+  {
+    id: "tecnope",
+    titulo: "Tecnopé - Sistema de Gestão Clínica (SaaS)",
+    descricao:
+      "Plataforma Full Stack desenvolvida para automatizar o agendamento de consultas. Conta com gerador inteligente de vagas (Time Slots) para evitar double booking, gestão completa de status da consulta e painel administrativo protegido por JWT.",
+    link: "https://tecnope-web.vercel.app/",
+    imagem: "/tecnope.jpg",
+    techs: ["React", "Supabase", "PostgreSQL", "Tailwind"],
+  },
+  {
+    id: "encurtador-url",
+    titulo: "Encurtador de URL Serverless",
+    descricao:
+      "Aplicação Full Stack moderna para encurtamento de links. Conta com redirecionamento ultrarrápido, dashboard de cliques em tempo real, UI vibrante em Dark/Neon e arquitetura Serverless.",
+    link: "https://encurtador-url-vert.vercel.app/",
+    imagem: "/encurtador.jpg",
+    techs: ["React", "Node.js", "MongoDB", "Tailwind", "Vercel"],
+  },
   {
     id: "biketracker",
     titulo: "BikeTracker",
@@ -110,17 +147,14 @@ const projetos = [
       "Aplicação mobile desenvolvida para ciclistas registrarem e monitorarem suas atividades, rotas e desempenho em tempo real.",
     link: "https://github.com/eduardotorres-17/BikeTracker-Aplicativo-TCC.git",
     imagem: "/LogoBikeTracker.jpg",
+    imagensApp: [
+      "/biketracker-1.jpg",
+      "/biketracker-2.jpg",
+      "/biketracker-3.jpg",
+      "/biketracker-4.jpg",
+    ],
     techs: ["React Native", "Firebase", "Mapbox API"],
   },
-  // {
-  //   id: "portfolio-vibe",
-  //   titulo: "Portfolio Vibe",
-  //   descricao:
-  //     "Este site incrível desenvolvido com arquitetura Full Stack utilizando Node.js e React.",
-  //   link: "https://github.com/EduardoBertinettiTorres",
-  //   imagem: "",
-  //   techs: ["React", "Node.js", "Tailwind"],
-  // },
 ];
 
 // --- ENDPOINTS ---
@@ -133,7 +167,6 @@ app.get("/api/sobre", (req, res) => {
   res.json(dadosPessoais);
 });
 
-// Novo Endpoint
 app.get("/api/formacao", (req, res) => {
   res.json(formacao);
 });
